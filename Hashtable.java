@@ -41,7 +41,6 @@ public class Hashtable {
     public void put(String key, String value){
         List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
 
-        HashtableEntry newEntry = new HashtableEntry(key, value);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key)) {
@@ -49,12 +48,12 @@ public class Hashtable {
                 return ;
             }
         }
+
+        HashtableEntry newEntry = new HashtableEntry(key, value);
         chain.add(newEntry);
     }
 
     public String get(String key){
-        HashtableEntry tmp = new HashtableEntry(key, key);
-
         List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
 
         for (HashtableEntry entry : chain){
@@ -65,7 +64,6 @@ public class Hashtable {
     }
 
     public String remove(String key){
-        HashtableEntry tmp = new HashtableEntry(key, key);
 
         List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
 
@@ -80,8 +78,6 @@ public class Hashtable {
     }
 
     public boolean containsKey(String key){
-        HashtableEntry tmp = new HashtableEntry(key, key);
-
         List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
 
         for (HashtableEntry entry : chain){
