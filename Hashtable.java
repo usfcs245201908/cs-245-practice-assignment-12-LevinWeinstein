@@ -5,6 +5,7 @@
  * This implementation of a hashtable uses chaining.
  */
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class Hashtable {
     // User a prime number for array size to minimize collisions
     private final int ARRAY_SIZE = 49157;
     //Make our array an array of lists, for chaining
-    private List<HashtableEntry>[] innerArray;
+    private List<List<HashtableEntry>> innerArray;
 
 
 
@@ -31,10 +32,11 @@ public class Hashtable {
 
     // constructor
     public Hashtable(){
-        innerArray = new List[ARRAY_SIZE];
+
+        innerArray = new ArrayList<>();
 
         for (int i = 0; i < ARRAY_SIZE; i++)
-            innerArray[i] = new LinkedList<>();
+            innerArray.add(new LinkedList<>());
     }
 
     /**
@@ -46,7 +48,7 @@ public class Hashtable {
      *          Whether or not the key is in the table
      */
     public boolean containsKey(String key){
-        List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key))
@@ -65,7 +67,7 @@ public class Hashtable {
      *         The value corresponding to {key} in the table, or null if key not in table.keys.
      */
     public String get(String key){
-        List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key))
@@ -78,7 +80,7 @@ public class Hashtable {
      * put: Puts the value {value} at the key {key}.
      */
     public void put(String key, String value){
-        List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
 
 
         for (HashtableEntry entry : chain){
@@ -101,7 +103,7 @@ public class Hashtable {
      */
     public String remove(String key){
 
-        List<HashtableEntry> chain = innerArray[Math.abs(key.hashCode()) % ARRAY_SIZE];
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key)) {
