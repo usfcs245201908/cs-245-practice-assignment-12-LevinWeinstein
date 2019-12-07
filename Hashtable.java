@@ -11,12 +11,11 @@ import java.util.List;
 
 public class Hashtable {
 
-    // User a prime number for array size to minimize collisions
-    private final int ARRAY_SIZE = 49157;
     //Make our array an array of lists, for chaining
     private List<List<HashtableEntry>> innerArray;
-
-
+    private int entryCount;
+    private int resizeCount;
+    private final float LOAD_FACTOR = 0.65f;
 
     /* HashtableEntry: contains key and val */
     private static class  HashtableEntry {
@@ -32,13 +31,33 @@ public class Hashtable {
 
     // constructor
     public Hashtable(){
-
+        resizeCount = -1;
+        entryCount = 0;
+        int arraySize = HASHTABLE_PRIMES[++resizeCount];
         innerArray = new ArrayList<>();
 
-        for (int i = 0; i < ARRAY_SIZE; i++)
-            innerArray.add(new LinkedList<>());
+        for (int i = 0; i < arraySize; i++)
+            innerArray.add(new ArrayList<>());
     }
 
+    public void resizeInnerArray(){
+        int newArraySize = HASHTABLE_PRIMES[++resizeCount];
+        List<List<HashtableEntry>> newInnerArray = new ArrayList<>();
+
+        for (int i = 0; i < newArraySize; i++)
+            newInnerArray.add(new LinkedList<>());
+
+        for (int i = 0; i < innerArray.size(); i++){
+            List<HashtableEntry> oldChain = innerArray.get(i);
+
+            for (HashtableEntry entry : oldChain){
+                List<HashtableEntry> newChain = newInnerArray.get(Math.abs(entry.key.hashCode()) % newArraySize);
+                newChain.add(entry);
+            }
+
+        }
+        innerArray = newInnerArray;
+    }
     /**
      * containsKey: determine whether the Hashtable contains a given key.
      *
@@ -48,7 +67,7 @@ public class Hashtable {
      *          Whether or not the key is in the table
      */
     public boolean containsKey(String key){
-        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % HASHTABLE_PRIMES[resizeCount]);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key))
@@ -67,7 +86,8 @@ public class Hashtable {
      *         The value corresponding to {key} in the table, or null if key not in table.keys.
      */
     public String get(String key){
-        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
+        int arraySize = HASHTABLE_PRIMES[resizeCount];
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % arraySize);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key))
@@ -80,8 +100,14 @@ public class Hashtable {
      * put: Puts the value {value} at the key {key}.
      */
     public void put(String key, String value){
-        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
+        int arraySize = HASHTABLE_PRIMES[resizeCount];
 
+         if ((1.0f * entryCount / arraySize)  > LOAD_FACTOR) {
+            resizeInnerArray();
+            arraySize = HASHTABLE_PRIMES[resizeCount];
+        }
+
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % arraySize);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key)) {
@@ -90,6 +116,7 @@ public class Hashtable {
             }
         }
 
+        entryCount++;
         HashtableEntry newEntry = new HashtableEntry(key, value);
         chain.add(newEntry);
     }
@@ -102,11 +129,11 @@ public class Hashtable {
      * @return
      */
     public String remove(String key){
-
-        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % ARRAY_SIZE);
+        List<HashtableEntry> chain = innerArray.get(Math.abs(key.hashCode()) % HASHTABLE_PRIMES[resizeCount]);
 
         for (HashtableEntry entry : chain){
             if (entry.key.equals(key)) {
+                entryCount--;
                 String ret = entry.val;
                 chain.remove(entry);
                 return ret;
@@ -114,5 +141,20 @@ public class Hashtable {
         }
         return null;
     }
+
+    /**
+     * List of efficient hashtable primes.
+     *
+     * From: https://planetmath.org/goodhashtableprimes
+     */
+    public final int[] HASHTABLE_PRIMES = {
+                   769,       1543,       3079,       6151,
+                 12289,      24593,      49157,      98317,
+                196613,     393241,     786433,    1572869,
+               3145739,    6291469,   12582917,   25165843,
+              50331653,  100663319,  201326611,  402653189,
+             805306457, 1610612741
+
+    };
 
 }
