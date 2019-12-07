@@ -34,7 +34,7 @@ public class Hashtable {
         resizeCount = -1;
         entryCount = 0;
         int arraySize = HASHTABLE_PRIMES[++resizeCount];
-        innerArray = new ArrayList<>();
+        innerArray = new ArrayList<>(arraySize);
 
         for (int i = 0; i < arraySize; i++)
             innerArray.add(new ArrayList<>());
@@ -42,7 +42,7 @@ public class Hashtable {
 
     public void resizeInnerArray(){
         int newArraySize = HASHTABLE_PRIMES[++resizeCount];
-        List<List<HashtableEntry>> newInnerArray = new ArrayList<>();
+        List<List<HashtableEntry>> newInnerArray = new ArrayList<>(newArraySize);
 
         for (int i = 0; i < newArraySize; i++)
             newInnerArray.add(new LinkedList<>());
